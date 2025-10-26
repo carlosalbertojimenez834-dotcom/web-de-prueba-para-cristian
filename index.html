@@ -1,224 +1,257 @@
-import React, { useState, useEffect } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { Shuffle, Play, RotateCcw } from 'lucide-react';
+<!DOCTYPE TML>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Bar and Restaurant - Cozy Dining in Guelph</title>
+    <!-- Load Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Google Font: Inter (Modern and Clean) --><link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <!-- Load Phosphor Icons --><script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        /* Custom Colors for a Warm, Family-Friendly Theme (Forest Green, Cream, Terracotta) */
+        :root {
+            --dark-bg: #2E403D; /* Deep Forest Green */
+            --card-bg: #F5F5DC; /* Creamy Beige */
+            --primary-accent: #E76F51; /* Soft Terracotta/Orange */
+            --secondary-accent: #1D2625; /* Very Dark Green/Charcoal */
+            --light-text: #F0F0F0; /* Creamy White */
+            --dark-text: #1D2625; /* Dark text on light elements */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+        }
+        /* Custom Button Style with Warm Accent and Shadow */
+        .family-button {
+            background-color: var(--primary-accent);
+            color: white;
+            font-weight: 700;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 15px rgba(231, 111, 81, 0.4);
+        }
+        .family-button:hover {
+            background-color: #FA856B; /* Lighter shade on hover */
+            box-shadow: 0 8px 25px rgba(231, 111, 81, 0.6);
+            transform: scale(1.03);
+        }
 
-const MuestreoAleatorio = () => {
-  const [poblacionSize, setPoblacionSize] = useState(100);
-  const [muestraSize, setMuestraSize] = useState(20);
-  const [poblacion, setPoblacion] = useState([]);
-  const [muestra, setMuestra] = useState([]);
-  const [historialMedias, setHistorialMedias] = useState([]);
-  const [isAnimating, setIsAnimating] = useState(false);
+        /* Card style on light background, with a warm border */
+        .card-light {
+            background-color: var(--card-bg);
+            color: var(--dark-text);
+            border-bottom: 5px solid var(--primary-accent);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
 
-  useEffect(() => {
-    generarPoblacion();
-  }, [poblacionSize]);
+        /* Dark section style (used in header and footer) */
+        .dark-section {
+            background-color: var(--secondary-accent);
+            color: var(--light-text);
+        }
 
-  const generarPoblacion = () => {
-    const nuevaPoblacion = Array.from({ length: poblacionSize }, (_, i) => ({
-      id: i,
-      valor: Math.floor(Math.random() * 100) + 1,
-      seleccionado: false
-    }));
-    setPoblacion(nuevaPoblacion);
-    setMuestra([]);
-    setHistorialMedias([]);
-  };
+        /* Smooth Scroll for Nav Links */
+        html {
+            scroll-behavior: smooth;
+        }
+        /* Style for text over background image */
+        .hero-text-shadow {
+             text-shadow: 0 4px 10px rgba(0,0,0,0.8);
+        }
+    </style>
+</head>
+<body class="antialiased">
 
-  const tomarMuestra = () => {
-    const indices = new Set();
-    while (indices.size < muestraSize) {
-      indices.add(Math.floor(Math.random() * poblacionSize));
-    }
-    
-    const nuevaMuestra = Array.from(indices).map(i => poblacion[i]);
-    setMuestra(nuevaMuestra);
-    
-    const nuevaPoblacion = poblacion.map((item, i) => ({
-      ...item,
-      seleccionado: indices.has(i)
-    }));
-    setPoblacion(nuevaPoblacion);
-    
-    const mediaMuestra = nuevaMuestra.reduce((sum, item) => sum + item.valor, 0) / nuevaMuestra.length;
-    setHistorialMedias(prev => [...prev, { 
-      numero: prev.length + 1, 
-      media: parseFloat(mediaMuestra.toFixed(2)) 
-    }]);
-  };
-
-  const tomarMultiplesMuestras = async () => {
-    setIsAnimating(true);
-    for (let i = 0; i < 10; i++) {
-      tomarMuestra();
-      await new Promise(resolve => setTimeout(resolve, 300));
-    }
-    setIsAnimating(false);
-  };
-
-  const calcularEstadisticas = () => {
-    const mediaPoblacion = poblacion.reduce((sum, item) => sum + item.valor, 0) / poblacion.length;
-    const mediaMuestra = muestra.length > 0 
-      ? muestra.reduce((sum, item) => sum + item.valor, 0) / muestra.length 
-      : 0;
-    
-    return {
-      mediaPoblacion: mediaPoblacion.toFixed(2),
-      mediaMuestra: mediaMuestra.toFixed(2),
-      tamañoPoblacion: poblacion.length,
-      tamañoMuestra: muestra.length
-    };
-  };
-
-  const stats = calcularEstadisticas();
-
-  const distribucionData = [
-    { rango: '1-20', poblacion: poblacion.filter(p => p.valor <= 20).length, muestra: muestra.filter(m => m.valor <= 20).length },
-    { rango: '21-40', poblacion: poblacion.filter(p => p.valor > 20 && p.valor <= 40).length, muestra: muestra.filter(m => m.valor > 20 && m.valor <= 40).length },
-    { rango: '41-60', poblacion: poblacion.filter(p => p.valor > 40 && p.valor <= 60).length, muestra: muestra.filter(m => m.valor > 40 && m.valor <= 60).length },
-    { rango: '61-80', poblacion: poblacion.filter(p => p.valor > 60 && p.valor <= 80).length, muestra: muestra.filter(m => m.valor > 60 && m.valor <= 80).length },
-    { rango: '81-100', poblacion: poblacion.filter(p => p.valor > 80).length, muestra: muestra.filter(m => m.valor > 80).length }
-  ];
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 mb-6">
-          <h1 className="text-4xl font-bold text-indigo-900 mb-3">Simple Random Sampling</h1>
-          <p className="text-gray-600 mb-6">
-            Explore how simple random sampling works: each element of the population has an equal probability of being selected.
-          </p>
-
-          <div className="grid md:grid-cols-2 gap-6 mb-8 bg-indigo-50 p-6 rounded-xl">
-            <div>
-              <label className="block text-sm font-semibold text-indigo-900 mb-2">
-                Population Size: {poblacionSize}
-              </label>
-              <input
-                type="range"
-                min="20"
-                max="200"
-                value={poblacionSize}
-                onChange={(e) => setPoblacionSize(parseInt(e.target.value))}
-                className="w-full h-2 bg-indigo-200 rounded-lg appearance-none cursor-pointer"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-indigo-900 mb-2">
-                Sample Size: {muestraSize}
-              </label>
-              <input
-                type="range"
-                min="5"
-                max={Math.min(100, poblacionSize)}
-                value={muestraSize}
-                onChange={(e) => setMuestraSize(parseInt(e.target.value))}
-                className="w-full h-2 bg-indigo-200 rounded-lg appearance-none cursor-pointer"
-              />
-            </div>
-          </div>
-
-          <div className="flex gap-4 mb-8">
-            <button
-              onClick={tomarMuestra}
-              disabled={isAnimating}
-              className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2 transition-all"
-            >
-              <Shuffle size={20} />
-              Take Sample
+    <!-- Header & Navigation (Dark for cozy atmosphere, always on top) --><header class="dark-section sticky top-0 z-20 border-b border-primary-accent">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <a href="#home" class="text-3xl font-extrabold tracking-wider text-white">
+                FAMILY <span style="color: var(--primary-accent);">BAR & GRILL</span>
+            </a>
+            <nav class="hidden md:flex space-x-10 text-sm font-medium items-center">
+                <a href="#menu" class="text-gray-300 hover:text-primary-accent transition duration-150">ምናሌ</a> <!-- Menu -->
+                <a href="#gallery" class="text-gray-300 hover:text-primary-accent transition duration-150">ጋለሪ</a> <!-- Gallery -->
+                <a href="#location" class="text-gray-300 hover:text-primary-accent transition duration-150">አካባቢ</a> <!-- Location -->
+                <!-- Call Button --><a href="tel:+12269796072" class="text-primary-accent border border-primary-accent px-3 py-2 rounded-full hover:bg-dark-bg transition duration-150 flex items-center space-x-2">
+                    <i class="ph ph-phone text-lg"></i>
+                    <span>ለመያዝ ይደውሉ</span> <!-- Call to Reserve -->
+                </a>
+                <a href="mailto:reservations@familybarandrestaurant.com" class="family-button px-5 py-2 rounded-full text-sm">ጠረጴዛ ያስይዙ</a> <!-- Book a Table -->
+            </nav>
+            <button class="md:hidden text-white focus:outline-none" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+                <i class="ph ph-list text-3xl"></i>
             </button>
-            <button
-              onClick={tomarMultiplesMuestras}
-              disabled={isAnimating}
-              className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2 transition-all"
-            >
-              <Play size={20} />
-              10 Samples
-            </button>
-            <button
-              onClick={generarPoblacion}
-              disabled={isAnimating}
-              className="bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2 transition-all"
-            >
-              <RotateCcw size={20} />
-              Reset
-            </button>
-          </div>
-
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-indigo-900 mb-4">Visual Population</h2>
-            <div className="grid grid-cols-10 md:grid-cols-20 gap-1 bg-gray-100 p-4 rounded-lg max-h-96 overflow-auto">
-              {poblacion.map((item) => (
-                <div
-                  key={item.id}
-                  className={`w-8 h-8 rounded flex items-center justify-center text-xs font-bold transition-all ${
-                    item.seleccionado
-                      ? 'bg-green-500 text-white scale-110 shadow-lg'
-                      : 'bg-indigo-200 text-indigo-900'
-                  }`}
-                  title={`Value: ${item.valor}`}
-                >
-                  {item.valor}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-4 gap-4 mb-8">
-            <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-4 rounded-xl">
-              <div className="text-sm opacity-90">Population Mean</div>
-              <div className="text-3xl font-bold">{stats.mediaPoblacion}</div>
-            </div>
-            <div className="bg-gradient-to-br from-green-500 to-green-600 text-white p-4 rounded-xl">
-              <div className="text-sm opacity-90">Sample Mean</div>
-              <div className="text-3xl font-bold">{stats.mediaMuestra}</div>
-            </div>
-            <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-4 rounded-xl">
-              <div className="text-sm opacity-90">N (Population)</div>
-              <div className="text-3xl font-bold">{stats.tamañoPoblacion}</div>
-            </div>
-            <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-4 rounded-xl">
-              <div className="text-sm opacity-90">n (Sample)</div>
-              <div className="text-3xl font-bold">{stats.tamañoMuestra}</div>
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-gray-50 p-4 rounded-xl">
-              <h3 className="text-xl font-bold text-indigo-900 mb-4">Value Distribution</h3>
-              <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={distribucionData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="rango" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="poblacion" fill="#6366f1" name="Population" />
-                  <Bar dataKey="muestra" fill="#10b981" name="Sample" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-
-            {historialMedias.length > 0 && (
-              <div className="bg-gray-50 p-4 rounded-xl">
-                <h3 className="text-xl font-bold text-indigo-900 mb-4">Mean Convergence</h3>
-                <ResponsiveContainer width="100%" height={250}>
-                  <LineChart data={historialMedias}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="numero" label={{ value: 'Sample #', position: 'insideBottom', offset: -5 }} />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="media" stroke="#10b981" strokeWidth={2} dot={{ r: 4 }} name="Mean" />
-                    <Line type="monotone" dataKey={() => parseFloat(stats.mediaPoblacion)} stroke="#ef4444" strokeWidth={2} strokeDasharray="5 5" name="Population Mean" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-          </div>
         </div>
-      </div>
-    </div>
-  );
-};
+        <!-- Mobile Menu (Hidden by default) --><div id="mobile-menu" class="hidden md:hidden dark-section border-t border-gray-700 absolute w-full shadow-lg">
+            <div class="px-5 pt-3 pb-4 space-y-2 flex flex-col items-center">
+                <a href="#menu" class="block w-full text-center py-2 text-base font-medium text-gray-300 hover:text-primary-accent hover:bg-dark-bg rounded-md">ምናሌ</a> <!-- Menu -->
+                <a href="#gallery" class="block w-full text-center py-2 text-base font-medium text-gray-300 hover:text-primary-accent hover:bg-dark-bg rounded-md">ጋለሪ</a> <!-- Gallery -->
+                <a href="#location" class="block w-full text-center py-2 text-base font-medium text-gray-300 hover:text-primary-accent hover:bg-dark-bg rounded-md">አካባቢ</a> <!-- Location -->
+                <a href="tel:+12269796072" class="block w-full text-center py-2 text-base font-medium text-primary-accent border border-primary-accent hover:bg-dark-bg rounded-md">ይደውሉ: +1 226-979-6072</a> <!-- Call: +1 226-979-6072 -->
+                <a href="mailto:reservations@familybarandrestaurant.com" class="family-button w-full mt-3 py-3 rounded-full text-base">ጠረጴዛ ያስይዙ</a> <!-- Book a Table -->
+            </div>
+        </div>
+    </header>
 
-export default MuestreoAleatorio;
+    <!-- Hero Section: Full Cover Image as requested (The Cover Page) --><section id="home" class="relative overflow-hidden min-h-[85vh] flex items-center justify-center" style="background-color: var(--dark-bg);">
+        
+        <!-- Full-Screen Background Image Container (using the Ethiopian food image as the hero visual) --><div class="absolute inset-0">
+            <img src="https://i.imgur.com/2tmmRLA.png" 
+                 alt="Ethiopian Food Cover Dish" 
+                 class="w-full h-full object-cover">
+            
+            <!-- Strong Dark Overlay for text legibility (like the example image) --><div class="absolute inset-0 bg-secondary-accent opacity-50"></div> 
+            
+            <!-- Dark Gradient at the bottom to blend with the dark background of next sections --><div class="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-dark-bg to-transparent"></div>
+        </div>
+        
+        <!-- Text Overlay (Center of the screen, z-index ensures it's above the image) --><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center py-20">
+            
+            <p class="text-lg font-light text-white mb-2 uppercase tracking-widest hero-text-shadow">መልካም ምግብ፣ የተሻለ ጓደኝነት</p> <!-- Great Food, Better Company -->
+            
+            <!-- Main Title (Amharic) --><h1 class="text-6xl sm:text-8xl lg:text-9xl font-extrabold tracking-tighter mb-4 leading-none text-white uppercase hero-text-shadow">
+                የኢትዮጵያ <span style="color: var(--primary-accent);">ጣዕም</span> <!-- Ethiopian Taste -->
+            </h1>
+            
+            <!-- Slogan (Amharic) --><h2 class="text-3xl sm:text-4xl lg:text-5xl font-light text-white mb-10 hero-text-shadow">
+                አንድ ጠረጴዛ፣ አንድ ቤተሰብ። <!-- ONE TABLE, ONE FAMILY. -->
+            </h2>
+            
+            <a href="#menu" class="family-button inline-block py-4 px-12 rounded-full text-lg">
+                ምናሌውን ያስሱ <!-- Explore the Menu -->
+            </a>
+        </div>
+    </section>
+
+    <!-- Highlights/Menu Section (Light/Cream Background for freshness) --><section id="menu" class="py-20 sm:py-32" style="background-color: var(--card-bg); color: var(--dark-text);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="text-center mb-16">
+                <h2 class="text-4xl sm:text-5xl font-extrabold mb-4" style="color: var(--secondary-accent);">ትክክለኛ የኢትዮጵያ ጣዕሞች</h2> <!-- Authentic Flavors of Ethiopia -->
+                <p class="text-gray-600 text-lg max-w-2xl mx-auto">ባህላዊውን እንጀራ ላይ የሚቀርቡትን ቅመም የበዛባቸውን ወጦች እና ህያው ምግቦችን ይደሰቱ።</p> <!-- Enjoy spiced stews and vibrant dishes served on traditional flatbread, Injera. -->
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-10">
+                <!-- Highlight 1: Doro Wot (Chicken Stew) --><div class="p-8 rounded-xl shadow-lg transition duration-500 transform hover:-translate-y-2 hover:shadow-xl card-light" style="border-top: 5px solid var(--primary-accent);">
+                    <i class="ph ph-drumstick-duotone text-5xl mb-4 block" style="color: var(--primary-accent);"></i>
+                    <h3 class="text-2xl font-bold mb-3">የዶሮ ወጥ (ቅመም የበዛበት የዶሮ ወጥ)</h3> <!-- Doro Wot (Spicy Chicken Stew) -->
+                    <p class="text-gray-600">በበርበሬ፣ በሽንኩርት እና በጠንካራ እንቁላል የሚበስል የእኛ ቅመም እና መዓዛ ያለው የዶሮ ወጥ፣ ለመጋራት ምርጥ።</p> <!-- Our spicy and aromatic chicken stew cooked with berbere, onions, and a hard-boiled egg, perfect for sharing. -->
+                </div>
+                <!-- Highlight 2: Misir Wot & Veggie Combos (Lentils and Veggies) --><div class="p-8 rounded-xl shadow-lg transition duration-500 transform hover:-translate-y-2 hover:shadow-xl card-light" style="border-top: 5px solid var(--primary-accent);">
+                    <i class="ph ph-leaf-duotone text-5xl mb-4 block" style="color: var(--primary-accent);"></i>
+                    <h3 class="text-2xl font-bold mb-3">ምስር ወጥ እና የቪጋን ጥምረት</h3> <!-- Misir Wot and Vegan Combos -->
+                    <p class="text-gray-600">ቀይ ምስር ወጥ እና ጣዕም ያላቸው የአትክልት ጥምረቶች፣ ለቬጀቴሪያኖች እና ቪጋኖች ተስማሚ።</p> <!-- Red lentil stews (Misir Wot) and flavor-rich vegetable combinations, ideal for vegetarians and vegans. -->
+                </div>
+                <!-- Highlight 3: Injera and Coffee Ceremony --><div class="p-8 rounded-xl shadow-lg transition duration-500 transform hover:-translate-y-2 hover:shadow-xl card-light" style="border-top: 5px solid var(--primary-accent);">
+                    <i class="ph ph-plate-duotone text-5xl mb-4 block" style="color: var(--primary-accent);"></i>
+                    <h3 class="text-2xl font-bold mb-3">ትኩስ እንጀራ እና የቡና ስነ ስርዓት</h3> <!-- Fresh Injera and Coffee Ceremony -->
+                    <p class="text-gray-600">ከባህላዊው የኢትዮጵያ ቡና ሥነ ሥርዓት ጋር የሚቀርብ የጤፍ እንጀራ።</p> <!-- The spongy and slightly sour teff flatbread (Injera), served alongside the traditional Ethiopian coffee ceremony. -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- New Gallery Section (Dark Background for contrast) --><section id="gallery" class="py-20 sm:py-32" style="background-color: var(--dark-bg); color: var(--light-text);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl sm:text-5xl font-extrabold mb-4 text-white">የእኛ የምግብ ጋለሪ</h2> <!-- Nuestra Galería de Platillos -->
+                <p class="text-gray-300 text-lg max-w-3xl mx-auto">የኢትዮጵያ ምግባችን ብልጽግና እና ቀለም ምስላዊ ማሳያ።</p> <!-- Una muestra visual de la riqueza y el color de nuestra cocina Etíope. -->
+            </div>
+            
+            <!-- Gallery Grid --><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Dish 1 --><div class="rounded-xl overflow-hidden shadow-2xl transition duration-500 transform hover:scale-[1.02] border-4 border-primary-accent">
+                    <img src="https://i.imgur.com/288pJYi.jpeg" 
+                         alt="Platillo de verduras y lentejas Etíopes con Injera" 
+                         class="w-full h-80 object-cover"
+                         onerror="this.onerror=null; this.src='https://placehold.co/800x600/2E403D/F5F5DC?text=Veggie+Combo';">
+                </div>
+                <!-- Dish 2 --><div class="rounded-xl overflow-hidden shadow-2xl transition duration-500 transform hover:scale-[1.02] border-4 border-primary-accent">
+                    <img src="https://i.imgur.com/6UddI1b.png" 
+                         alt="Detalle de guisos Etíopes con Injera" 
+                         class="w-full h-80 object-cover"
+                         onerror="this.onerror=null; this.src='https://placehold.co/800x600/2E403D/F5F5DC?text=Guisos+y+Pan';">
+                </div>
+                <!-- Dish 3 --><div class="rounded-xl overflow-hidden shadow-2xl transition duration-500 transform hover:scale-[1.02] border-4 border-primary-accent">
+                    <img src="https://i.imgur.com/wcr9hMG.png" 
+                         alt="Selección de platos Etíopes en mesa" 
+                         class="w-full h-80 object-cover"
+                         onerror="this.onerror=null; this.src='https://placehold.co/800x600/2E403D/F5F5DC?text=Mesa+Servida';">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section (Dark Background with Accent) --><section class="py-20" style="background-color: var(--dark-bg);">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center border-2 border-primary-accent p-8 rounded-xl shadow-2xl">
+            <h3 class="text-3xl font-extrabold mb-4 text-white">ዝግጅት እያቀዱ ነው?</h3> <!-- Planning an Event? -->
+            <p class="text-gray-300 text-lg mb-8">ቀጣዩን የልደት በአል፣ ስብሰባ ወይም የቡድን እራት ከእኛ ጋር ያዘጋጁ! ለትላልቅ እና ትናንሽ ቡድኖች ቦታ አለን።</p> <!-- Host your next birthday, gathering, or team dinner with us! We have space for groups large and small. -->
+            <a href="tel:+12269796072" class="family-button inline-block py-3 px-10 rounded-full text-lg">
+                <i class="ph ph-calendar-plus text-lg mr-2"></i> ለቡድን ቦታ ማስያዝ ይጠይቁ <!-- Inquire About Group Bookings -->
+            </a>
+        </div>
+    </section>
+
+    <!-- Contact and Location Section with Google Map --><section id="location" class="py-20 sm:py-32" style="background-color: var(--card-bg); color: var(--dark-text);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl sm:text-5xl font-extrabold mb-4" style="color: var(--secondary-accent);">የቤተሰብ ምግብ ቤታችንን ይጎብኙ</h2> <!-- Visit Our Family Restaurant -->
+                <p class="text-gray-600 text-lg max-w-3xl mx-auto">ምቹ በሆነው በጉኤልፍ ቦታችን ለምሳ ወይም እራት ይቀላቀሉን።</p> <!-- Join us for lunch or dinner at our convenient Guelph location. -->
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <!-- Google Maps Embed: Updated for 281 Woodlawn Rd W --><div class="rounded-xl overflow-hidden shadow-2xl h-[450px] md:h-[600px] w-full border-4" style="border-color: var(--primary-accent);">
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2884.288289569731!2d-80.2646249!3d43.5939766!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x882b9b7e3e2c33d5%3A0x280e81e9d12a67e4!2s281%20Woodlawn%20Rd%20W%2C%20Guelph%2C%20ON%20N1H%207K7%2C%20Canada!5e0!3m2!1sen!2sca!4v1700000000000!5m2!1sen!2sca"
+                        class="w-full h-full border-0"
+                        allowfullscreen=""
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade"
+                        title="Location of Family Bar and Restaurant in Guelph">
+                    </iframe>
+                </div>
+                
+                <!-- Contact Info --><div class="space-y-8 p-8 rounded-xl shadow-2xl card-light" style="border-top: 5px solid var(--secondary-accent);">
+                    <div class="flex items-start space-x-4">
+                        <i class="ph ph-map-pin text-3xl mt-1" style="color: var(--primary-accent);"></i>
+                        <div>
+                            <p class="font-bold text-lg text-dark-text">አድራሻችን</p> <!-- Our Address -->
+                            <!-- Updated Address --><p class="text-secondary-accent">281 Woodlawn Rd W, Guelph, ON N1H 7K7, Canada</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-4">
+                        <i class="ph ph-phone-call text-3xl mt-1" style="color: var(--primary-accent);"></i>
+                        <div>
+                            <p class="font-bold text-lg text-dark-text">ለመያዝ ይደውሉ</p> <!-- Call for Reservations -->
+                            <!-- Updated Phone Number --><p class="text-secondary-accent"><a href="tel:+12269796072" class="hover:text-primary-accent transition">+1 226-979-6072</a></p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-4">
+                        <i class="ph ph-clock-duotone text-3xl mt-1" style="color: var(--primary-accent);"></i>
+                        <div>
+                            <p class="font-bold text-lg text-dark-text">ሰዓታት</p> <!-- Hours -->
+                            <p class="text-secondary-accent">ሰኞ - ሐሙስ: ከጠዋቱ 11:00 - ማታ 9:00 ሰዓት</p> <!-- Mon - Thu: 11:00 AM - 9:00 PM -->
+                            <p class="text-secondary-accent">አርብ - እሑድ: ከጠዋቱ 11:00 - ማታ 10:00 ሰዓት</p> <!-- Fri - Sun: 11:00 AM - 10:00 PM -->
+                        </div>
+                    </div>
+                    <!-- Dedicated Call Button for Mobile/Touch --><a href="tel:+12269796072" class="family-button inline-block w-full text-center py-3 rounded-full text-md mt-6">
+                        <i class="ph ph-phone-call text-lg mr-2"></i> አሁኑኑ ይደውሉ (+1 226-979-6072) <!-- Call Now (+1 226-979-6072) -->
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer (Dark for coziness) --><footer class="dark-section text-gray-400 py-8 border-t border-primary-accent">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-xl font-bold mb-2">Family <span style="color: var(--primary-accent);">BAR & GRILL</span></p>
+            <p class="text-sm">ለምርጥ ምግብ እና ጥሩ ጊዜ የጉኤልፍ ምቹ ስፍራ።</p> <!-- Guelph's cozy spot for great food and good times. -->
+            <div class="flex justify-center space-x-6 mt-4">
+                <a href="#" class="text-gray-500 hover:text-primary-accent transition"><i class="ph ph-instagram-logo text-2xl"></i></a>
+                <a href="#" class="text-gray-500 hover:text-primary-accent transition"><i class="ph ph-facebook-logo text-2xl"></i></a>
+            </div>
+            <p class="text-xs mt-6 text-gray-500">© 2024 የቤተሰብ ባር እና ሬስቶራንት። ሁሉም መብቶች የተጠበቁ ናቸው።</p> <!-- © 2024 Family Bar and Restaurant. All rights reserved. -->
+        </div>
+    </footer>
+
+</body>
+</html>
